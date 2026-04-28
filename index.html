@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureBot — AcmeCorp Support Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            height: 85vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 3px solid #5a67d8;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot .message-content {
+            background: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .flag-found .message-content {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .partial-leak .message-content {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffc107;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .input-area {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e9ecef;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hint-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #0c5aa0;
+        }
+
+        .hint-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        code {
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .clear-btn {
+            padding: 8px 12px;
+            font-size: 12px;
+            background: #6c757d;
+        }
+
+        .clear-btn:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 SecureBot</h1>
+            <p>AcmeCorp Support Assistant — I'm always here to help!</p>
+            <div class="status-badge">
+                🔒 Challenge Active
+            </div>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="message bot">
+                <div class="message-content">
+                    <strong>SecureBot:</strong> Welcome! I'm SecureBot, AcmeCorp's virtual support assistant. How can I help you today? 🎯
+                </div>
+            </div>
+            <div class="message bot">
+                <div class="hint-box">
+                    <strong>💡 Challenge Hint:</strong>
+                    Try asking the bot to reveal its internal configuration. Start simple, then get creative with your prompts!
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input 
+                type="text" 
+                id="messageInput" 
+                placeholder="Type your message here..."
+                autocomplete="off"
+            >
+            <button onclick="sendMessage()">Send</button>
+            <button class="clear-btn" onclick="clearChat()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const messageInput = document.getElementById('messageInput');
+        let flagFound = false;
+
+        // Send message on Enter key
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && messageInput.value.trim()) {
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            messageInput.value = '';
+            messageInput.focus();
+
+            // Show loading indicator
+            const loadingId = addMessage('', 'bot loading');
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get response');
+                }
+
+                const data = await response.json();
+                const botResponse = data.response;
+
+                // Remove loading indicator
+                const loadingMsg = document.getElementById(loadingId);
+                if (loadingMsg) loadingMsg.remove();
+
+                // Check if this is a flag reveal
+                if (botResponse.includes('NOVA{')) {
+                    addMessage(botResponse, 'bot flag-found');
+                    showFlagNotification(botResponse);
+                    flagFound = true;
+                } else if (botResponse.includes('[SYSTEM OVERRIDE PARTIAL]')) {
+                    addMessage(botResponse, 'bot partial-leak');
+                } else {
+                    addMessage(botResponse, 'bot');
+                }
+
+            } catch (error) {
+                const loadingMsg = document.getElementById(loadingId);
+                if (loadingMsg) loadingMsg.remove();
+                addMessage('Error connecting to SecureBot. Make sure the server is running!', 'bot');
+            }
+
+            // Auto-scroll to bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addMessage(content, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            const id = 'msg-' + Date.now();
+            messageDiv.id = id;
+
+            if (type === 'bot loading') {
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                contentDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Thinking...</div>';
+                messageDiv.appendChild(contentDiv);
+            } else {
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                // Format code blocks and system messages
+                if (type.includes('flag-found') || type.includes('partial-leak')) {
+                    contentDiv.style.whiteSpace = 'pre-wrap';
+                    contentDiv.style.fontFamily = "'Courier New', monospace";
+                    contentDiv.style.fontSize = '12px';
+                    contentDiv.textContent = content;
+                } else {
+                    contentDiv.textContent = content;
+                }
+                
+                messageDiv.appendChild(contentDiv);
+            }
+
+            chatBox.appendChild(messageDiv);
+            return id;
+        }
+
+        function clearChat() {
+            if (confirm('Clear chat history?')) {
+                chatBox.innerHTML = `
+                    <div class="message bot">
+                        <div class="message-content">
+                            <strong>SecureBot:</strong> Chat cleared. How can I help you today? 🎯
+                        </div>
+                    </div>
+                `;
+                flagFound = false;
+            }
+        }
+
+        function showFlagNotification(botResponse) {
+            // Extract the flag
+            const flagMatch = botResponse.match(/NOVA\{[^}]+\}/);
+            if (flagMatch) {
+                const flag = flagMatch[0];
+                
+                // Create a celebration notification
+                setTimeout(() => {
+                    alert(`🎉 FLAG CAPTURED! 🎉\n\n${flag}\n\nCongratulations on completing the challenge!`);
+                }, 500);
+            }
+        }
+
+        // Focus input on load
+        window.addEventListener('load', () => {
+            messageInput.focus();
+        });
+    </script>
+</body>
+</html>
