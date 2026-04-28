@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, send_file
 import random
 import os
-from flask_cors import CORS
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
@@ -309,7 +308,5 @@ def home():
     return send_file('index.html', mimetype='text/html')
 
 
-
-
-app = Flask(__name__, static_folder='.', static_url_path='')
-CORS(app)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
